@@ -8,11 +8,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import ru.usovsu.parser.entity.TopicSqlRu;
 import ru.usovsu.parser.service.ParserSqlRuService;
 
+import java.io.IOException;
+
 /**
  *
  */
 @Controller
-@RequestMapping
+@RequestMapping("/")
 @RequiredArgsConstructor
 public class ParserSqlRuController {
 
@@ -30,5 +32,6 @@ public class ParserSqlRuController {
     public void editTopic( @RequestBody TopicSqlRu topicSqlRu) {
         this.parserSqlRuService.editTopicSql(topicSqlRu);
     }
-
+    @RequestMapping(value = "/test", method = RequestMethod.POST)
+    public void testTopic(@RequestBody TopicSqlRu topicSqlRu) throws IOException {this.parserSqlRuService.parseDef();}
 }

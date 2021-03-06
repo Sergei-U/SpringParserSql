@@ -12,5 +12,6 @@ public class UrlByFind {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long id;
+
     private String url;
 }
