@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<body>
+<div align="center">
+    <h1>Vacancy List</h1>
+        <table border="1" cellpadding="10">
+        <thead>
+        <tr>
+            <th>Vacancy ID</th>
+            <th>Title</th>
+            <th>Url vacancy</th>
+            <th>Text vacancy</th>
+            <th>Date vacancy</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="product : ${listProducts}">
+            <td th:text="${TopicSqlRu.id}">Vacancy ID</td>
+            <td th:text="${TopicSqlRu.title}">Title</td>
+            <td th:text="${TopicSqlRu.url}">Url vacancy</td>
+            <td th:text="${TopicSqlRu.msgVacancy}">Text vacancy</td>
+            <td th:text="${TopicSqlRu.date}">Date vacancy</td>
+            <td>
+                <a th:href="/@{'/edit/' + ${TopicSqlRu.id}}">Edit</a>
+                &nbsp;&nbsp;&nbsp;
+                <a th:href="/@{'/delete/' + ${TopicSqlRu.id}}">Delete</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
