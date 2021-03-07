@@ -21,15 +21,22 @@ public class ParserSqlRuController {
     private final ParserSqlRuService parserSqlRuService;
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public void addTopic (@RequestBody TopicSqlRu topicSqlRu) {
+    public void addTopic(@RequestBody TopicSqlRu topicSqlRu) {
         this.parserSqlRuService.addTopicSql(topicSqlRu);
     }
+
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public void deleteTopic(@RequestBody TopicSqlRu topicSqlRu) {
         this.parserSqlRuService.deleteTopicSql(topicSqlRu);
     }
+
     @RequestMapping(value = "/edit", method = RequestMethod.POST)
-    public void editTopic( @RequestBody TopicSqlRu topicSqlRu) {
+    public void editTopic(@RequestBody TopicSqlRu topicSqlRu) {
         this.parserSqlRuService.editTopicSql(topicSqlRu);
     }
-   }
+
+    @RequestMapping(value = "/test", method = RequestMethod.POST)
+    public void testTopic() throws IOException {
+        this.parserSqlRuService.parseDef();
+    }
+}
