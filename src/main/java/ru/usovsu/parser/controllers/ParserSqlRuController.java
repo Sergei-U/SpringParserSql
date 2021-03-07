@@ -32,6 +32,4 @@ public class ParserSqlRuController {
     public void editTopic( @RequestBody TopicSqlRu topicSqlRu) {
         this.parserSqlRuService.editTopicSql(topicSqlRu);
     }
-    @RequestMapping(value = "/test", method = RequestMethod.POST)
-    public void testTopic(@RequestBody TopicSqlRu topicSqlRu) throws IOException {this.parserSqlRuService.parseDef();}
-}
+   }

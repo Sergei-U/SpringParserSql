@@ -24,6 +24,7 @@ public class ParserSqlRuService {
     private final TopicSqlRuRepository topicSqlRuRepository;
 
 
+
     public void addTopicSql(TopicSqlRu topicSqlRu) {
         this.topicSqlRuRepository.save(topicSqlRu);
     }
@@ -36,7 +37,7 @@ public class ParserSqlRuService {
         this.topicSqlRuRepository.save(topicSqlRu);
     }
 
-    public List<TopicSqlRu> topicA;
+    public List<TopicSqlRu> topic;
     public List<TopicSqlRu> messageList;
     private String url;
 
@@ -51,18 +52,14 @@ public class ParserSqlRuService {
         return urlReq;
     }
 
-    @Autowired
+//    @Autowired
     public void parseDef() throws IOException {
-        System.out.println("parseDef() working");
+        System.out.println("parseDef() start working");
 
+        topic = new ArrayList<>();
+        messageList = new ArrayList<>();
 
-        topicA = new ArrayList<>();
-//        messageList = new ArrayList<>();
-        Map<String, String> topic = new HashMap<>();
-        Map<StringBuilder, String> messageList = new HashMap<>();
-
-
-        Document forum = Jsoup.connect(urlReqSimple()).get();
+       Document forum = Jsoup.connect(urlReqSimple()).get();
         Elements table = forum.getElementsByClass("postslisttopic");
 
         for (Element e : table) {
@@ -73,10 +70,10 @@ public class ParserSqlRuService {
                     .first()
                     .attr("href");
 
-            topicA.add(new TopicSqlRu(title, url));
-            topic.put(title, url);
+            topic.add(new TopicSqlRu(title, url));
 
-            for (TopicSqlRu t : topicA) {
+
+            for (TopicSqlRu t : topic) {
                 String urlTopic = t.getUrl();
                 Document msgBody = Jsoup.connect(urlTopic).get();
                 Elements msgBodyElem = msgBody.getElementsByClass("msgBody");
@@ -100,12 +97,12 @@ public class ParserSqlRuService {
                         .text();
                 dateVacancy = dateVacancy
                         .substring(0, dateVacancy.indexOf('['));
-                messageList.put(resultMsgBodyElem, dateVacancy);
+                messageList.add(new TopicSqlRu(resultMsgBodyElem, dateVacancy));
+                topicSqlRuRepository.save(t);
             }
         }
-            Map topicList = new HashMap();
-            topicList.put(topic, messageList);
-            System.out.println(topicList);
+
+            System.out.println("parseDef() finished working");
     }
 }
 
