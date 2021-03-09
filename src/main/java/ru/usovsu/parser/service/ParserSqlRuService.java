@@ -65,7 +65,6 @@ public class ParserSqlRuService {
         for (Element e : table) {
             String title = e.select("a[href]").first().text();
             String url = e.select("a[href]").first().attr("href");
-
             topic.add(new TopicSqlRu(title, url));
 
             for (TopicSqlRu t : topic) {
@@ -85,8 +84,13 @@ public class ParserSqlRuService {
                 messageList.add(new TopicSqlRu(resultMsgBodyElem, dateVacancy));
 
                 topicSqlRuRepository.save(t);
+
             }
+
+            topicSqlRuRepository.saveAll(e);
+            topicSqlRuRepository.save(e);
         }
+
         System.out.println("parseDef() finished working");
     }
 }
