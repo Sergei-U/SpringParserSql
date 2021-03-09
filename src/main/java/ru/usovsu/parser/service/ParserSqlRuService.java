@@ -83,12 +83,12 @@ public class ParserSqlRuService {
                 dateVacancy = dateVacancy.substring(0, dateVacancy.indexOf('['));
                 messageList.add(new TopicSqlRu(resultMsgBodyElem, dateVacancy));
 
-//                topicSqlRuRepository.save(t);
+                topicSqlRuRepository.save(t);
 
             }
 
 
-            topicSqlRuRepository.save((List)e);
+            topicSqlRuRepository.save(topic);
         }
 
         System.out.println("parseDef() finished working");
