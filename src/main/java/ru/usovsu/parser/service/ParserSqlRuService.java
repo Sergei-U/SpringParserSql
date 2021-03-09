@@ -6,13 +6,14 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.usovsu.parser.entity.TopicSqlRu;
+import ru.usovsu.parser.entity.UrlByFind;
 import ru.usovsu.parser.repository.TopicSqlRuRepository;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -22,7 +23,6 @@ import java.util.*;
 public class ParserSqlRuService {
 
     private final TopicSqlRuRepository topicSqlRuRepository;
-
 
 
     public void addTopicSql(TopicSqlRu topicSqlRu) {
@@ -37,72 +37,57 @@ public class ParserSqlRuService {
         this.topicSqlRuRepository.save(topicSqlRu);
     }
 
+
+
     public List<TopicSqlRu> topic;
     public List<TopicSqlRu> messageList;
-    private String url;
+    public UrlByFind urlByFind;
 
 
-    public void setUrl(String url) {
 
-        this.url = urlReqSimple();
-    }
 
     public String urlReqSimple() {
+//        String urlReq = "https://www.sql.ru/forum/actualsearch.aspx?search="+urlByFind.getUrl()+"&sin=0&bid=66&a=&ma=0&dt=-1&s=1&so=1"
         String urlReq = "https://www.sql.ru/forum/job-offers";
         return urlReq;
+
     }
 
-//    @Autowired
     public void parseDef() throws IOException {
         System.out.println("parseDef() start working");
-
+//        System.out.println(urlByFind.getUrl());
         topic = new ArrayList<>();
         messageList = new ArrayList<>();
 
-       Document forum = Jsoup.connect(urlReqSimple()).get();
+        Document forum = Jsoup.connect(urlReqSimple()).get();
         Elements table = forum.getElementsByClass("postslisttopic");
 
         for (Element e : table) {
-            String title = e.select("a[href]")
-                    .first()
-                    .text();
-            String url = e.select("a[href]")
-                    .first()
-                    .attr("href");
+            String title = e.select("a[href]").first().text();
+            String url = e.select("a[href]").first().attr("href");
 
             topic.add(new TopicSqlRu(title, url));
-
 
             for (TopicSqlRu t : topic) {
                 String urlTopic = t.getUrl();
                 Document msgBody = Jsoup.connect(urlTopic).get();
                 Elements msgBodyElem = msgBody.getElementsByClass("msgBody");
                 StringBuilder resultMsgBodyElem = new StringBuilder();
-                Element msg = msgBodyElem
-                        .select(".msgBody")
-                        .next()
-                        .first();
+                Element msg = msgBodyElem.select(".msgBody").next().first();
+
                 for (TextNode subString : msg.textNodes()) {
-                    if (!subString.text()
-                            .equals(" ")) {
-                        resultMsgBodyElem
-                                .append(subString)
-                                .append(System.lineSeparator())
-                                .toString();
+                    if (!subString.text().equals(" ")) {
+                        resultMsgBodyElem.append(subString).append(System.lineSeparator()).toString();
                     }
                 }
-                String dateVacancy = msgBody
-                        .select("td.msgFooter")
-                        .first()
-                        .text();
-                dateVacancy = dateVacancy
-                        .substring(0, dateVacancy.indexOf('['));
+                String dateVacancy = msgBody.select("td.msgFooter").first().text();
+                dateVacancy = dateVacancy.substring(0, dateVacancy.indexOf('['));
                 messageList.add(new TopicSqlRu(resultMsgBodyElem, dateVacancy));
+
                 topicSqlRuRepository.save(t);
             }
         }
-
-            System.out.println("parseDef() finished working");
+        System.out.println("parseDef() finished working");
     }
 }
 

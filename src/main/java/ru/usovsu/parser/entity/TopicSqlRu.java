@@ -1,15 +1,14 @@
 package ru.usovsu.parser.entity;
 
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 
 import javax.persistence.*;
-import java.io.Serializable;
+import java.util.Objects;
 
 /**
  *
  */
-@Data
+
 @Table(name = "TOPICSQLRU")
 @Entity
 public class TopicSqlRu {
@@ -27,7 +26,7 @@ public class TopicSqlRu {
     @ApiModelProperty(value = "URL вакансии")
     private String url;
 
-    @Column(name = "MSGVACANCY")
+    @Column(name = "VACANCYTEXT")
     @ApiModelProperty(value = "Описание вакансии")
     private StringBuilder msgVacancy;
 
@@ -48,6 +47,70 @@ public class TopicSqlRu {
 
     public TopicSqlRu() {
 
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public StringBuilder getMsgVacancy() {
+        return msgVacancy;
+    }
+
+    public void setMsgVacancy(StringBuilder msgVacancy) {
+        this.msgVacancy = msgVacancy;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TopicSqlRu that = (TopicSqlRu) o;
+        return Objects.equals(id, that.id) && Objects.equals(title, that.title) && Objects.equals(url, that.url) && Objects.equals(msgVacancy, that.msgVacancy) && Objects.equals(date, that.date);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, url, msgVacancy, date);
+    }
+
+    @Override
+    public String toString() {
+        return "TopicSqlRu{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", url='" + url + '\'' +
+                ", msgVacancy=" + msgVacancy +
+                ", date='" + date + '\'' +
+                '}';
     }
 }
 
