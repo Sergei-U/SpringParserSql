@@ -88,7 +88,7 @@ public class ParserSqlRuService {
             }
 
 
-            topicSqlRuRepository.save(topic);
+//            topicSqlRuRepository.save(topic);
         }
 
         System.out.println("parseDef() finished working");
