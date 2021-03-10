@@ -7,6 +7,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StopWatch;
 import ru.usovsu.parser.entity.TopicSqlRu;
 import ru.usovsu.parser.entity.UrlByFind;
 import ru.usovsu.parser.repository.TopicSqlRuRepository;
@@ -38,12 +39,9 @@ public class ParserSqlRuService {
     }
 
 
-
     public List<TopicSqlRu> topic;
     public List<TopicSqlRu> messageList;
     public UrlByFind urlByFind;
-
-
 
 
     public String urlReqSimple() {
@@ -54,45 +52,64 @@ public class ParserSqlRuService {
     }
 
     public void parseDef() throws IOException {
+
+
         System.out.println("parseDef() start working");
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
 //        System.out.println(urlByFind.getUrl());
         topic = new ArrayList<>();
-        messageList = new ArrayList<>();
+
 
         Document forum = Jsoup.connect(urlReqSimple()).get();
         Elements table = forum.getElementsByClass("postslisttopic");
 
         for (Element e : table) {
+
             String title = e.select("a[href]").first().text();
             String url = e.select("a[href]").first().attr("href");
             topic.add(new TopicSqlRu(title, url));
 
-            for (TopicSqlRu t : topic) {
-                String urlTopic = t.getUrl();
-                Document msgBody = Jsoup.connect(urlTopic).get();
-                Elements msgBodyElem = msgBody.getElementsByClass("msgBody");
-                StringBuilder resultMsgBodyElem = new StringBuilder();
-                Element msg = msgBodyElem.select(".msgBody").next().first();
+            topicSqlRuRepository.save(e);
 
-                for (TextNode subString : msg.textNodes()) {
-                    if (!subString.text().equals(" ")) {
-                        resultMsgBodyElem.append(subString).append(System.lineSeparator()).toString();
-                    }
-                }
-                String dateVacancy = msgBody.select("td.msgFooter").first().text();
-                dateVacancy = dateVacancy.substring(0, dateVacancy.indexOf('['));
-                messageList.add(new TopicSqlRu(resultMsgBodyElem, dateVacancy));
-
-                topicSqlRuRepository.save(t);
-
-            }
-
-
-//            topicSqlRuRepository.save(topic);
+            stopWatch.stop();
+            System.out.println("Time to parsing process " + stopWatch.getTotalTimeSeconds());
+            System.out.println("parseDef() finished working");
         }
+    }
 
-        System.out.println("parseDef() finished working");
+    public void parseDateAndBodyVacancy() throws IOException {
+        System.out.println("parseDateAndBodyVacancy() start working");
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        messageList = new ArrayList<>();
+        for (TopicSqlRu t : topic) {
+            String urlTopic = t.getUrl();
+            Document msgBody = Jsoup.connect(urlTopic).get();
+            Elements msgBodyElem = msgBody.getElementsByClass("msgBody");
+            StringBuilder resultMsgBodyElem = new StringBuilder();
+            Element msg = msgBodyElem.select(".msgBody").next().first();
+            for (TextNode subString : msg.textNodes()) {
+                if (!subString.text().equals(" ")) {
+                    resultMsgBodyElem.append(subString).append(System.lineSeparator()).toString();
+                }
+            }
+            String dateVacancy = msgBody.select("td.msgFooter").first().text();
+            dateVacancy = dateVacancy.substring(0, dateVacancy.indexOf('['));
+
+            messageList.add(new TopicSqlRu(resultMsgBodyElem, dateVacancy));
+
+            topicSqlRuRepository.save(t);
+            stopWatch.stop();
+            System.out.println("Time to parsing process " + stopWatch.getTotalTimeSeconds());
+            System.out.println("parseDateAndBodyVacancy() finished working");
+
+        }
     }
 }
+//            topicSqlRuRepository.save((List<? extends TopicSqlRu>) Stream.builder().add(url).add(title).add(dateVacancy).add(resultMsgBodyElem).build());
+
+//            topicSqlRuRepository.save(topic);
+//}
 
 

@@ -36,5 +36,6 @@ public class ParserSqlRuController {
     @RequestMapping(value = "/test", method = RequestMethod.POST)
     public void testTopic() throws IOException {
         this.parserSqlRuService.parseDef();
+        this.parserSqlRuService.parseDateAndBodyVacancy();
     }
 }
