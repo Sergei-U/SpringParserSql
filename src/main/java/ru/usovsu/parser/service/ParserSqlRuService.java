@@ -1,6 +1,7 @@
 package ru.usovsu.parser.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -8,7 +9,6 @@ import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 import ru.usovsu.parser.entity.TopicSqlRu;
-import ru.usovsu.parser.entity.UrlByFind;
 import ru.usovsu.parser.repository.TopicSqlRuRepository;
 
 import java.io.IOException;
@@ -20,9 +20,12 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ParserSqlRuService {
 
     private final TopicSqlRuRepository topicSqlRuRepository;
+    public List<String> links;
+    public List<TopicSqlRu> messageList;
 
 
     public void addTopicSql(TopicSqlRu topicSqlRu) {
@@ -38,60 +41,41 @@ public class ParserSqlRuService {
     }
 
 
-
-    public List<TopicSqlRu> topic;
-    public List<TopicSqlRu> messageList;
-    public UrlByFind urlByFind;
-
-
-
-
     public String urlReqSimple() {
-//        String urlReq = "https://www.sql.ru/forum/actualsearch.aspx?search="+urlByFind.getUrl()+"&sin=0&bid=66&a=&ma=0&dt=-1&s=1&so=1"
-        String urlReq = "https://www.sql.ru/forum/job-offers";
-        return urlReq;
-
+        return "https://www.sql.ru/forum/job-offers";
     }
 
     public void parseDef() throws IOException {
-        System.out.println("parseDef() start working");
-//        System.out.println(urlByFind.getUrl());
-        topic = new ArrayList<>();
-        messageList = new ArrayList<>();
+        log.debug("parseDef() start working");
+        links = new ArrayList<>();
 
         Document forum = Jsoup.connect(urlReqSimple()).get();
         Elements table = forum.getElementsByClass("postslisttopic");
 
+        //Получаем URL каждой вакансии
         for (Element e : table) {
-            String title = e.select("a[href]").first().text();
             String url = e.select("a[href]").first().attr("href");
-            topic.add(new TopicSqlRu(title, url));
-
-            for (TopicSqlRu t : topic) {
-                String urlTopic = t.getUrl();
-                Document msgBody = Jsoup.connect(urlTopic).get();
-                Elements msgBodyElem = msgBody.getElementsByClass("msgBody");
-                StringBuilder resultMsgBodyElem = new StringBuilder();
-                Element msg = msgBodyElem.select(".msgBody").next().first();
-
-                for (TextNode subString : msg.textNodes()) {
-                    if (!subString.text().equals(" ")) {
-                        resultMsgBodyElem.append(subString).append(System.lineSeparator()).toString();
-                    }
-                }
-                String dateVacancy = msgBody.select("td.msgFooter").first().text();
-                dateVacancy = dateVacancy.substring(0, dateVacancy.indexOf('['));
-                messageList.add(new TopicSqlRu(resultMsgBodyElem, dateVacancy));
-
-                topicSqlRuRepository.save(t);
-
-            }
-
-
-//            topicSqlRuRepository.save(topic);
+            links.add(url);
         }
 
-        System.out.println("parseDef() finished working");
+        //Проходим по списку вакансии
+        for (String url : links) {
+            Document msgBody = Jsoup.connect(url).get();
+            Elements msgBodyElem = msgBody.getElementsByClass("msgBody");
+            StringBuilder resultMsgBodyElem = new StringBuilder();
+            Element msg = msgBodyElem.select(".msgBody").next().first();
+
+            for (TextNode subString : msg.textNodes()) {
+                if (!subString.text().equals(" ")) {
+                    String nevedomyaXernya =
+                            resultMsgBodyElem.append(subString).append(System.lineSeparator()).toString();
+                }
+            }
+            String dateVacancy = msgBody.select("td.msgFooter").first().text();
+            dateVacancy = dateVacancy.substring(0, dateVacancy.indexOf('['));
+            topicSqlRuRepository.save(new TopicSqlRu(resultMsgBodyElem, dateVacancy));
+
+        }
     }
 }
 
